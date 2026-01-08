@@ -53,3 +53,52 @@ app.post('/addpopmart', async (req, res) => {
 });
 
 // Example Route: Edit a new popmart
+app.put('/popmarts/:id', async (req, res) => {
+    const { id } = req.params;
+    const { popmart_name, artist_name, popmart_pic } = req.body;
+
+    try {
+        let connection = await mysql.createConnection(dbConfig);
+
+        const [result] = await connection.execute(
+            `UPDATE popmarts 
+             SET popmart_name = ?, artist_name = ?, popmart_pic = ?
+             WHERE id = ?`,
+            [popmart_name, artist_name, popmart_pic, id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Popmart not found' });
+        }
+
+        res.json({ message: 'Popmart updated successfully' });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error - could not update popmart' });
+    }
+});
+
+// Example Route: Delete an existing popmart
+app.delete('/popmarts/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        let connection = await mysql.createConnection(dbConfig);
+
+        const [result] = await connection.execute(
+            'DELETE FROM popmarts WHERE id = ?',
+            [id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Popmart not found' });
+        }
+
+        res.json({ message: 'Popmart deleted successfully' });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error - could not delete popmart' });
+    }
+});    
